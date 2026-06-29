@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.5.0",
+    "@prisma/adapter-pg": "^7.8.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -27,8 +28,5 @@
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "typescript": "^5"
-  },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
   }
 }

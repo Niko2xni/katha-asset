@@ -1,8 +1,18 @@
 import { PrismaClient, Role } from "@prisma/client";
 import { faker } from "@faker-js/faker";
+import "dotenv/config";
+import { PrismaPg } from "@prisma/adapter-pg";
+
+const connectionString = process.env.DATABASE_URL ?? process.env.DIRECT_URL;
+
+if (!connectionString) {
+    throw new Error("DATABASE_URL or DIRECT_URL must be set");
+}
 
 // Initialize Prisma Client to talk to your Supabase database
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+    adapter: new PrismaPg({ connectionString }),
+});
 
 async function main() {
     console.log("Clearing old data...");
