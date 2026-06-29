@@ -4,10 +4,70 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+}
+
+enum Role {
+  CUSTOMER
+  CREATOR
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model User {
+  id                String        @id @default(uuid())
+  name              String?
+  email             String        @unique
+  image             String?
+  role              Role          @default(CUSTOMER)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  products          Product[]     @relation("CreatorProducts")
+  orders            Order[]
+  purchaseDocs      Purchase[]
+}
+
+model Product {
+  id                String        @id @default(uuid())
+  title             String
+  description       String
+  pricePhpInCents   Int           // Eliminates rounding drift errors
+  priceUsdInCents   Int           // Eliminates rounding drift errors
+  previewUrl        String        // Public asset card thumbnail
+  secureFileUrl     String        // Protected storage bucket folder path
+  tags              String[]
+  creatorId         String
+  creator           User          @relation("CreatorProducts", fields: [creatorId], references: [id], onDelete: Cascade)
+  createdAt         DateTime      @default(now())
+  purchases         Purchase[]
+}
+
+model Order {
+  id                String        @id @default(uuid())
+  userId            String
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeSessionId   String        @unique // Protects against webhook duplication (idempotency)
+  amountPhpInCents  Int
+  amountUsdInCents  Int
+  status            OrderStatus   @default(PENDING)
+  createdAt         DateTime      @default(now())
+}
+
+model Purchase {
+  id                String        @id @default(uuid())
+  userId            String
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId         String
+  product           Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt         DateTime      @default(now())
+
+  @@unique([userId, productId])   // Relational rule preventing duplicate asset purchases
 }
