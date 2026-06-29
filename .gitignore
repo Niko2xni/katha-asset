@@ -1,0 +1,153 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# ==============================================================================
+# OS & SYSTEM FILES
+# ==============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ==============================================================================
+# SECURITY, SECRETS & ENVIRONMENT VARIABLES (CRITICAL)
+# ==============================================================================
+.env
+.env.*
+!.env.example
+*.env.json
+*.pem
+*.key
+*.secret
+
+# ==============================================================================
+# JAVASCRIPT / NODE.JS / REACT / VITE / NEXT.JS / TYPESCRIPT
+# ==============================================================================
+node_modules/
+jspm_packages/
+.pnpm-store/
+.yarn/
+!.yarn/releases/
+!.yarn/plugins/
+!.yarn/patches/
+!.yarn/versions/
+/.pnp
+.pnp.*
+
+# Build and distribution outputs
+dist/
+build/
+out/
+.next/
+.vuepress/dist
+.docusaurus/
+
+# Testing and cache
+coverage/
+.nyc_output/
+.eslintcache
+.stylelintcache
+.prettiercache
+.tsbuildinfo
+.turbo/
+
+# Logs and Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Next.js / Vercel specific
+next-env.d.ts
+.vercel
+
+# ==============================================================================
+# PYTHON / FASTAPI / DJANGO
+# ==============================================================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+ENV/
+env.bak/
+venv.bak/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Django specific
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# FastAPI / Celery
+celerybeat-schedule
+.pytest_cache/
+
+# ==============================================================================
+# JAVA
+# ==============================================================================
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Build tools (Maven / Gradle)
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.gradle/
+
+# ==============================================================================
+# PHP / LARAVEL
+# ==============================================================================
+/vendor/
+/public/storage
+/public/hot
+/storage/*.key
+/.auth0/
+
+# Laravel Mix / Vite outputs in Laravel
+/public/build
+mix-manifest.json
+package-lock.json.log
+
+# PHPUnit / Pest testing caches
+.phpunit.cache/
+.phpunit.result.cache
+.pest_tracker
+
+# ==============================================================================
+# IDEs & EDITORS (JetBrains, VS Code)
+# ==============================================================================
+# JetBrains (PyCharm, IntelliJ, PhpStorm, WebStorm)
+.idea/
+
+# Visual Studio Code
+# Uncomment the line below if you want your personal editor settings ignored
+# .vscode/
+*.code-workspace
+.history/
