@@ -1,17 +1,14 @@
-import { PrismaClient, Role } from "@prisma/client";
+import { PrismaClient, Role } from "../src/generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { faker } from "@faker-js/faker";
 import "dotenv/config";
-import { PrismaPg } from "@prisma/adapter-pg";
 
-const connectionString = process.env.DATABASE_URL ?? process.env.DIRECT_URL;
+const adapter = new PrismaPg({
+    connectionString: process.env.DIRECT_URL,
+})
 
-if (!connectionString) {
-    throw new Error("DATABASE_URL or DIRECT_URL must be set");
-}
-
-// Initialize Prisma Client to talk to your Supabase database
 const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString }),
+    adapter,
 });
 
 async function main() {
@@ -45,7 +42,7 @@ async function main() {
                             // Crucial: Multiply by 100 to convert standard currency amounts to clean integers (cents)
                             pricePhpInCents: basePhpPrice * 100,
                             priceUsdInCents: baseUsdPrice * 100,
-                            previewUrl: faker.image.urlLoremFlickr({ category: "abstract", width: 640, height: 480 }),
+                            previewUrl: faker.image.url({ width: 640, height: 480 }),
                             secureFileUrl: `raw-assets/${faker.string.uuid()}.zip`,
                             tags: [faker.commerce.productAdjective(), "DigitalAsset", "PHCreator"],
                         };
