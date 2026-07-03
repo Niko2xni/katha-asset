@@ -1,3 +1,5 @@
+⚠️ **Disclaimer:** This project is currently under active development.
+
 # Katha Asset
 
 Katha Asset is a digital asset storefront built with Next.js, Prisma, and NextAuth. It supports product browsing, creator access, authentication, and database-backed purchase and order tracking.
