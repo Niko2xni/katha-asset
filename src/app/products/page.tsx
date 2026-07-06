@@ -1,4 +1,5 @@
-import prisma from "@/lib/prisma";
+import { unstable_cache } from "next/cache";
+import db from "@/lib/prisma";
 import Navbar from "@/components/Navbar";
 import ProductGrid from "./ProductGrid";
 
@@ -6,33 +7,40 @@ interface PageProps {
     searchParams: Promise<{ tag?: string }>;
 }
 
+// Wrap the core database query in an optimized cache enclosure layer
+const getCachedProducts = unstable_cache(
+    async (tag?: string) => {
+        return await db.product.findMany({
+        where: tag ? { tags: { has: tag } } : undefined,
+        orderBy: { createdAt: 'desc' },
+        include: { creator: { select: { name: true } } },
+        });
+    },
+    ["products-catalog-cache"], // Global cache key identifier
+    { 
+        revalidate: 300, // Automates background cache expiration after 5 minutes (300 seconds)
+        tags: ["products"] // Dependency tag allowing instant administrative programmatic clearance
+    }
+);
+
+// Cached extraction utility for product tag categories
+const getCachedTags = unstable_cache(
+    async () => {
+        const allProductsForTags = await db.product.findMany({ select: { tags: true } });
+        return Array.from(new Set(allProductsForTags.flatMap((p) => p.tags)));
+    },
+    ["products-tags-cache"],
+    { revalidate: 3600 } // Cache structural tag taxonomies for 1 hour
+);
+
 export default async function ProductsPage({ searchParams }: PageProps) {
     // Await the search parameters per Next.js 15+ aynchronous contract rules
     const resolvedParams = await searchParams;
     const activeTag = resolvedParams.tag;
 
-    // Query Supabase directly from the server node
-    const products = await prisma.product.findMany({
-        where: activeTag ? {
-            tags: {
-                has: activeTag
-            }
-        } : undefined,
-        orderBy: {
-            createdAt: "desc",
-        },
-        include: {
-            creator: {
-                select: {
-                    name: true,
-                }
-            }
-        }
-    });
-
-    // Extract all distinct tags across your repository to generate filtering buttons
-    const allProductsForTags = await prisma.product.findMany({ select: { tags: true } });
-    const uniqueTags = Array.from(new Set(allProductsForTags.flatMap((p) => p.tags)));
+    // Read data instantly from memory or populate the cache if expired
+    const products = await getCachedProducts(activeTag);
+    const uniqueTags = await getCachedTags();
 
     return (
         <div className="w-full min-h-screen bg-neutral-50">

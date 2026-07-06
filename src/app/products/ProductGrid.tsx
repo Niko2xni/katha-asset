@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCurrency } from "@/context/CurrencyContext";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 // Explicitly type incoming Prisma payloads including database relations joins
 interface ProductWithCreator {
@@ -30,25 +30,28 @@ export default function ProductGrid({ products, uniqueTags, activeTag }: Product
         <div className="space-y-8">
             {/* Category Filtering Row */}
             <div className="flex flex-wrap gap-3 items-center">
-                <Button
-                    asChild
-                    variant={!activeTag ? "default" : "outline"}
-                    className="text-[1.3rem] h-auto px-4 py-2 cursor-pointer"
+                {/* All Assets Filter Link */}
+                <Link
+                    href="/products"
+                    className={buttonVariants({
+                        variant: !activeTag ? "default" : "outline",
+                        className: "text-[1.3rem] h-auto px-4 py-2 cursor-pointer",
+                    })}
                 >
-                    <Link href="/products">All Assets</Link>
-                </Button>
+                    All Assets
+                </Link>
 
                 {uniqueTags.map((tag) => (
-                    <Button
+                    <Link
                         key={tag}
-                        asChild
-                        variant={activeTag === tag ? "default" : "outline"}
-                        className="text-[1.3rem] h-auto px-4 py-2 cursor-pointer"
+                        href={`/products?tag=${encodeURIComponent(tag)}`}
+                        className={buttonVariants({
+                            variant: activeTag === tag ? "default" : "outline",
+                            className: "text-[1.3rem] h-auto px-4 py-2 cursor-pointer",
+                        })}
                     >
-                        <Link href={`/products?tag=${encodeURIComponent(tag)}`}>
-                            {tag}
-                        </Link>
-                    </Button>
+                        {tag}
+                    </Link>
                 ))}
             </div>
 
