@@ -31,3 +31,9 @@ jobs:
 
       - name: Execute Type Checking
         run: npx tsc --noEmit
+
+      - name: Generate Prisma Artifacts
+        run: npx prisma generate
+
+      - name: Verify Production Compilation
+        run: npm run build
