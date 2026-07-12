@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import db from "@/lib/prisma";
@@ -48,11 +49,13 @@ export default async function CustomerDashboard() {
                     </p>
                 </div>
 
-                <CustomerDashboardClient 
-                    purchases={purchases} 
-                    userName={session.user.name || "Valued Customer"}
-                    userEmail={session.user.email!}
-                />
+                <Suspense fallback={<div className="text-[1.6rem] text-neutral-400 font-medium">Loading Vault...</div>}>
+                    <CustomerDashboardClient 
+                        purchases={purchases} 
+                        userName={session.user.name || "Valued Customer"}
+                        userEmail={session.user.email!}
+                    />
+                </Suspense>
             </main>
         </div>
     );
