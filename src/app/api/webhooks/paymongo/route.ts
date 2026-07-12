@@ -32,11 +32,15 @@ export async function POST(req: Request) {
             .update(signaturePayload)
             .digest("hex");
 
+        const calculatedBuffer = Buffer.from(calculatedSignature, "utf-8");
+        const testBuffer = Buffer.from(testSignature, "utf-8");
+
+        if (calculatedBuffer.length !== testBuffer.length) {
+            return new NextResponse("Cryptographic Validation Integrity Discrepancy", { status: 401 });
+        }
+
         // Constant-time execution check blocks side-channel timing attack exploits
-        const isValid = crypto.timingSafeEqual(
-            Buffer.from(calculatedSignature, "utf-8"),
-            Buffer.from(testSignature, "utf-8")
-        );
+        const isValid = crypto.timingSafeEqual(calculatedBuffer, testBuffer);
 
         if (!isValid) {
             return new NextResponse("Cryptographic Validation Integrity Discrepancy", { status: 401 });

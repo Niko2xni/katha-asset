@@ -45,10 +45,13 @@ model Product {
   previewUrl      String // Public asset card thumbnail
   secureFileUrl   String // Protected storage bucket folder path
   tags            String[]
+  rating          Float      @default(0.0) // Storefront average asset ratings
   creatorId       String
   creator         User       @relation("CreatorProducts", fields: [creatorId], references: [id], onDelete: Cascade)
   createdAt       DateTime   @default(now())
   purchases       Purchase[]
+
+  @@index([creatorId]) // Optimizes creator relational lookups
 }
 
 model Order {
@@ -60,6 +63,8 @@ model Order {
   amountUsdInCents  Int
   status            OrderStatus @default(PENDING)
   createdAt         DateTime    @default(now())
+
+  @@index([userId]) // Optimizes customer order lookup queries
 }
 
 model Purchase {
@@ -71,4 +76,6 @@ model Purchase {
   createdAt DateTime @default(now())
 
   @@unique([userId, productId]) // Relational rule preventing duplicate asset purchases
+  @@index([userId]) // Optimizes asset vault retrieval speed
+  @@index([productId]) // Optimizes purchase statistics aggregation
 }

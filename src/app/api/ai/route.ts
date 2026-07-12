@@ -15,16 +15,15 @@ const localizationSchema = z.object({
 export async function POST(req: Request) {
     try {
         // 1. Authenticate user access context
-        // TEMPORARY BYPASS FOR LOCAL DEVELOPMENT TESTING
-        // const session = await auth();
-        // if (!session?.user) {
-        //    return new NextResponse("Unauthorized Execution Bypassed", { status: 401 });
-        // }
+        const session = await auth();
+        if (!session?.user) {
+            return new NextResponse("Unauthorized Execution", { status: 401 });
+        }
 
         // Ensure the requester possesses the required Creator clearance role boundaries
-        // if (session.user.role !== "CREATOR") {
-        //     return new NextResponse("Forbidden Resource: Creator credentials mandated.", { status: 403 });
-        // }
+        if (session.user.role !== "CREATOR") {
+            return new NextResponse("Forbidden Resource: Creator credentials mandated.", { status: 403 });
+        }
 
         const { rawTitle, rawDescription } = await req.json();
         if (!rawTitle || !rawDescription) {

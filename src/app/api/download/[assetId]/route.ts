@@ -10,14 +10,7 @@ interface RouteParams {
 export async function GET(req: Request, { params }: RouteParams) {
     try {
         // 1. Enforce active authentication gate
-        // const session = await auth();
-
-        const session = {
-            user: {
-                id: "20f35e08-8a5e-44ea-a221-dddc17550f29", // Forces the backend to see you as this user for testing purposes
-                role: "CUSTOMER" 
-            }
-        };
+        const session = await auth();
         
         if (!session?.user) {
             return new NextResponse("Unauthorized Download Attempt denied.", { status: 401 });

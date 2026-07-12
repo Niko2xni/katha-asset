@@ -4,16 +4,19 @@ import Navbar from "@/components/Navbar";
 import ProductGrid from "./ProductGrid";
 
 interface PageProps {
-    searchParams: Promise<{ tag?: string }>;
+    searchParams: Promise<{ tag?: string; page?: string; limit?: string }>;
 }
 
 // Wrap the core database query in an optimized cache enclosure layer
 const getCachedProducts = unstable_cache(
-    async (tag?: string) => {
+    async (tag?: string, page: number = 1, limit: number = 6) => {
+        const skip = (page - 1) * limit;
         return await db.product.findMany({
-        where: tag ? { tags: { has: tag } } : undefined,
-        orderBy: { createdAt: 'desc' },
-        include: { creator: { select: { name: true } } },
+            where: tag ? { tags: { has: tag } } : undefined,
+            orderBy: { createdAt: 'desc' },
+            include: { creator: { select: { name: true } } },
+            skip,
+            take: limit,
         });
     },
     ["products-catalog-cache"], // Global cache key identifier
@@ -21,6 +24,17 @@ const getCachedProducts = unstable_cache(
         revalidate: 300, // Automates background cache expiration after 5 minutes (300 seconds)
         tags: ["products"] // Dependency tag allowing instant administrative programmatic clearance
     }
+);
+
+// Cached extraction utility for product count matching the active filters
+const getCachedProductsCount = unstable_cache(
+    async (tag?: string) => {
+        return await db.product.count({
+            where: tag ? { tags: { has: tag } } : undefined,
+        });
+    },
+    ["products-count-cache"],
+    { revalidate: 300, tags: ["products"] }
 );
 
 // Cached extraction utility for product tag categories
@@ -37,9 +51,12 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     // Await the search parameters per Next.js 15+ aynchronous contract rules
     const resolvedParams = await searchParams;
     const activeTag = resolvedParams.tag;
+    const page = resolvedParams.page ? parseInt(resolvedParams.page, 10) : 1;
+    const limit = resolvedParams.limit ? parseInt(resolvedParams.limit, 10) : 6;
 
     // Read data instantly from memory or populate the cache if expired
-    const products = await getCachedProducts(activeTag);
+    const products = await getCachedProducts(activeTag, page, limit);
+    const totalCount = await getCachedProductsCount(activeTag);
     const uniqueTags = await getCachedTags();
 
     return (
@@ -57,7 +74,14 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 </div>
 
                 {/* Client presentation component handling state context transformations */}
-                <ProductGrid products={products} uniqueTags={uniqueTags} activeTag={activeTag} />
+                <ProductGrid 
+                    products={products} 
+                    uniqueTags={uniqueTags} 
+                    activeTag={activeTag} 
+                    page={page}
+                    limit={limit}
+                    totalCount={totalCount}
+                />
             </main>
         </div>
     );
