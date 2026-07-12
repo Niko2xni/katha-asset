@@ -12,6 +12,8 @@ const localizationSchema = z.object({
     suggestedCategories: z.array(z.string()).describe("Top 2 standard architectural categories for indexing this asset."),
 });
 
+// Explicit TS definition of the Schema output to guarantee strict fallback payload typing
+type LocalizationPayload = z.infer<typeof localizationSchema>;
 export async function POST(req: Request) {
     try {
         // 1. Authenticate user access context
@@ -30,21 +32,41 @@ export async function POST(req: Request) {
             return new NextResponse("Missing Core Input Parameters", { status: 400 });
         }
 
-        // 2. Direct the request to the Google Gemini model loop
-        const { object } = await generateObject({
-            model: google("gemini-3.1-flash-lite"), // Highly cost-effective and ultra-fast for extraction parsing
-            schema: localizationSchema,
-            system: `You are an expert design asset cataloging AI specializing in cultural localization. 
-                    Your job is to read localized titles and descriptions from Philippine content creators 
-                    and expand them into globally understandable, search-optimized English metadata structures. 
-                    Deconstruct specific cultural concepts into universal keywords.`,
-            prompt: `Analyze this asset:\nTitle: "${rawTitle}"\nDescription: "${rawDescription}"`,
-        });
+        // 2. Direct the request to the Google Gemini model loop with strict bounds
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s absolute execution ceiling
 
-        // 3. Return the type-safe validated JSON directly back to the creator dashboard UI
-        return NextResponse.json(object);
+        try {
+            const { object } = await generateObject({
+                model: google("gemini-3.1-flash-lite"),
+                schema: localizationSchema,
+                system: `You are an expert design asset cataloging AI specializing in cultural localization. 
+                        Your job is to read localized titles and descriptions from Philippine content creators 
+                        and expand them into globally understandable, search-optimized English metadata structures. 
+                        Deconstruct specific cultural concepts into universal keywords.`,
+                prompt: `Analyze this asset:\nTitle: "${rawTitle}"\nDescription: "${rawDescription}"`,
+                abortSignal: controller.signal,
+            });
+            clearTimeout(timeoutId);
+
+            // 3. Return the type-safe validated JSON directly back to the creator dashboard UI
+            return NextResponse.json(object);
+        } catch (aiError) {
+            clearTimeout(timeoutId);
+            console.warn("AI Generation Fault/Timeout. Activating Graceful Degradation Routine:", aiError);
+
+            // Graceful Degradation: Construct typed fallback to prevent UI blocking
+            const fallbackPayload: LocalizationPayload = {
+                globalTitle: rawTitle,
+                englishTranslation: rawDescription,
+                globalKeywords: ["asset", "digital", "design", "creative", "resource"],
+                suggestedCategories: ["General", "Uncategorized"]
+            };
+
+            return NextResponse.json(fallbackPayload);
+        }
     } catch (error) {
-        console.error("AI Localization Engine Failure:", error);
+        console.error("Fatal System Processing Error:", error);
         return new NextResponse("Internal LLM Processing Error", { status: 500 });
     }
 }
