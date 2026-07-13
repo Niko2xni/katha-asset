@@ -14,7 +14,7 @@ const getCachedProducts = unstable_cache(
         return await db.product.findMany({
             where: tag ? { tags: { has: tag } } : undefined,
             orderBy: { createdAt: 'desc' },
-            include: { creator: { select: { name: true } } },
+            include: { creator: { select: { id: true, name: true } } },
             skip,
             take: limit,
         });

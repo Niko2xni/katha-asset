@@ -1,6 +1,9 @@
 'use client';
 
+import Link from "next/link";
+
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useCurrency } from "@/context/CurrencyContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,8 +31,10 @@ interface CustomerDashboardClientProps {
 }
 
 export default function CustomerDashboardClient({ purchases, userName, userEmail }: CustomerDashboardClientProps) {
-    const { formatPrice, currency } = useCurrency();
+    const { formatPrice } = useCurrency();
     const [selectedInvoice, setSelectedInvoice] = useState<PurchaseWithProduct | null>(null);
+    const searchParams = useSearchParams();
+    const showSuccess = searchParams.get("success") === "true";
 
     const handlePrintInvoice = () => {
         window.print();
@@ -37,17 +42,31 @@ export default function CustomerDashboardClient({ purchases, userName, userEmail
 
     return (
         <div className="space-y-8">
+            {showSuccess && (
+                <div className="bg-emerald-50/80 border border-emerald-200/80 text-emerald-950 p-6 rounded-xl flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-white text-[1.8rem] font-bold shadow-sm">
+                            ✓
+                        </div>
+                        <div>
+                            <h4 className="text-[1.6rem] font-extrabold tracking-tight">Payment Successfully Processed!</h4>
+                            <p className="text-[1.3rem] text-emerald-600 font-medium mt-0.5">Thank you for your purchase. Your new digital assets are ready for download in the vault below.</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {purchases.length === 0 ? (
                 <div className="w-full text-center py-20 bg-white border border-neutral-200 rounded-xl">
                     <p className="text-[1.6rem] text-neutral-400 font-medium mb-4">
-                        You haven't purchased any digital assets yet.
+                        You haven&apos;t purchased any digital assets yet.
                     </p>
-                    <a
+                    <Link
                         href="/products"
                         className="inline-flex text-[1.4rem] font-bold py-3 px-6 bg-neutral-900 text-white rounded-lg hover:bg-neutral-800 transition-colors"
                     >
                         Browse Digital Storefront
-                    </a>
+                    </Link>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -56,7 +75,7 @@ export default function CustomerDashboardClient({ purchases, userName, userEmail
                             <div>
                                 <div className="w-full h-[160px] overflow-hidden bg-neutral-100 relative">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img 
+                                    <img
                                         src={purchase.product.previewUrl}
                                         alt={purchase.product.title}
                                         className="w-full h-full object-cover"

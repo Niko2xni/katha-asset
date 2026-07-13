@@ -30,21 +30,21 @@ export default async function CreatorDashboard() {
     let initialRevenuePhp = 0;
     let initialRevenueUsd = 0;
 
-    const topAssets = products.map(p => {
+    for (const p of products) {
         const sales = p.purchases.length;
         initialSalesCount += sales;
         initialRevenuePhp += sales * p.pricePhpInCents;
         initialRevenueUsd += sales * p.priceUsdInCents;
+    }
 
-        return {
-            id: p.id,
-            title: p.title,
-            pricePhpInCents: p.pricePhpInCents,
-            priceUsdInCents: p.priceUsdInCents,
-            sales: sales,
-            rating: p.rating,
-        };
-    });
+    const topAssets = products.map(p => ({
+        id: p.id,
+        title: p.title,
+        pricePhpInCents: p.pricePhpInCents,
+        priceUsdInCents: p.priceUsdInCents,
+        sales: p.purchases.length,
+        rating: p.rating,
+    }));
 
     return (
         <div className="w-full min-h-screen bg-neutral-50">
