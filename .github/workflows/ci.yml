@@ -1,6 +1,9 @@
 name: Continuous Integration
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -9,6 +12,9 @@ jobs:
   build-and-verify:
     name: Codebase Verification
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
 
     steps:
       - name: Checkout Repository
@@ -23,6 +29,9 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Generate Prisma Artifacts
+        run: npx prisma generate
+
       - name: Validate Prisma Schema
         run: npx prisma validate
 
@@ -31,9 +40,6 @@ jobs:
 
       - name: Execute Type Checking
         run: npx tsc --noEmit
-
-      - name: Generate Prisma Artifacts
-        run: npx prisma generate
 
       - name: Verify Production Compilation
         run: npm run build
