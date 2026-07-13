@@ -1,5 +1,7 @@
 'use client';
 
+import Link from "next/link";
+
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useCurrency } from "@/context/CurrencyContext";
@@ -29,7 +31,7 @@ interface CustomerDashboardClientProps {
 }
 
 export default function CustomerDashboardClient({ purchases, userName, userEmail }: CustomerDashboardClientProps) {
-    const { formatPrice, currency } = useCurrency();
+    const { formatPrice } = useCurrency();
     const [selectedInvoice, setSelectedInvoice] = useState<PurchaseWithProduct | null>(null);
     const searchParams = useSearchParams();
     const showSuccess = searchParams.get("success") === "true";
@@ -59,12 +61,12 @@ export default function CustomerDashboardClient({ purchases, userName, userEmail
                     <p className="text-[1.6rem] text-neutral-400 font-medium mb-4">
                         You haven&apos;t purchased any digital assets yet.
                     </p>
-                    <a
+                    <Link
                         href="/products"
                         className="inline-flex text-[1.4rem] font-bold py-3 px-6 bg-neutral-900 text-white rounded-lg hover:bg-neutral-800 transition-colors"
                     >
                         Browse Digital Storefront
-                    </a>
+                    </Link>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
