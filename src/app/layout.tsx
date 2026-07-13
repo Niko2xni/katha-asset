@@ -16,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "KathaAsset | Digital Asset Hub",
-  description: "An AI-Powered, Secure Digital Asset Marketplace for Philippine & International Creators.",
+  description:
+    "An AI-Powered, Secure Digital Asset Marketplace for Philippine & International Creators.",
 };
 
 export default async function RootLayout({
@@ -34,7 +35,9 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <CurrencyProvider initialCurrency={initialCurrency}>{children}</CurrencyProvider>
+        <CurrencyProvider initialCurrency={initialCurrency}>
+          {children}
+        </CurrencyProvider>
       </body>
     </html>
   );
