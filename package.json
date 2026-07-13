@@ -7,7 +7,7 @@
     "prebuild": "prisma generate",
     "build": "next build",
     "start": "next start",
-    "lint": "next eslint"
+    "lint": "next lint"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.8",
